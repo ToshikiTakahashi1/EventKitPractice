@@ -1,22 +1,23 @@
 import SwiftUI
-import EventKit
 
 @main
 struct EventKitPracticeApp: App {
-    
-    init() {
-        Task {
-            do {
-                try await EKEventStore().requestFullAccessToEvents()
-            } catch {
-                // TODO: Error Handling
-            }
-        }
-    }
+    @StateObject private var calenderAuthManager = CalenderAuthManager.shared
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if calenderAuthManager.isRequested {
+                ContentView()
+            } else {
+                ProgressView()
+                    .task {
+                        do {
+                            try await calenderAuthManager.requestAccess()
+                        } catch {
+                            
+                        }
+                    }
+            }
         }
     }
 }
