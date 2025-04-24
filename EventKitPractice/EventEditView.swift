@@ -5,6 +5,7 @@ struct EventEditView: UIViewControllerRepresentable {
     
     func makeUIViewController(context: Context) -> EKEventEditViewController {
         let editViewController = EKEventEditViewController()
+        editViewController.eventStore = EventStoreManager.shared.eventStore
         editViewController.delegate = context.coordinator
         return editViewController
     }
@@ -18,7 +19,7 @@ struct EventEditView: UIViewControllerRepresentable {
         }
         
         func eventEditViewController(_ controller: EKEventEditViewController, didCompleteWith action: EKEventEditViewAction) {
-            
+            controller.dismiss(animated: true)
         }
     }
     
