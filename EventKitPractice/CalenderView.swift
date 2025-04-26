@@ -5,6 +5,7 @@ struct ContentView: View {
     @State private var isEventViewPresented: Bool = false
     @State private var isEventEditViewPresented = false
     @State private var isEventListViewPresented = false
+    @State private var isCUstomCreateEventViewPresented: Bool = false
     
     var body: some View {
         VStack {
@@ -13,6 +14,9 @@ struct ContentView: View {
             }
             Button("EKEventEditViewController") {
                 isEventEditViewPresented = true
+            }
+            Button("カスタムで新規イベント作成") {
+                isCUstomCreateEventViewPresented = true
             }
             Button("1ヶ月以内の予定一覧") {
                 isEventListViewPresented = true
@@ -29,6 +33,9 @@ struct ContentView: View {
         }
         .sheet(isPresented: $isEventListViewPresented) {
             EventListView()
+        }
+        .sheet(isPresented: $isCUstomCreateEventViewPresented) {
+            EventCreateView()
         }
     }
 }
