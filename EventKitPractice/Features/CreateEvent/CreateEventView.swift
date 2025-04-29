@@ -8,6 +8,9 @@ struct EventCreateView: View {
     @State private var startDate: Date = Date()
     @State private var endDate: Date = Date().addingTimeInterval(3600) // デフォルト1時間後
     @State private var isAllDay: Bool = false
+    @State private var availability: EKEventAvailability = .busy
+    @State private var location: String = ""
+
     
     private let eventStore = EKEventStore()
     
@@ -32,6 +35,21 @@ struct EventCreateView: View {
                     Toggle("終日イベント", isOn: $isAllDay)
                 }
                 
+                Section("場所") {
+                    TextField("場所を入力", text: $location)
+                }
+
+                Section("参加可否") {
+                    Picker("参加状況", selection: $availability) {
+                        Text("出席可").tag(EKEventAvailability.free)
+                        Text("多忙").tag(EKEventAvailability.busy)
+                        Text("仮予定").tag(EKEventAvailability.tentative)
+                        Text("不可").tag(EKEventAvailability.unavailable)
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                }
+
+                
                 Section {
                     Button("イベントを保存") {
                         saveEvent()
@@ -51,26 +69,26 @@ struct EventCreateView: View {
     }
     
     private func saveEvent() {
-        eventStore.requestAccess(to: .event) { granted, error in
-            if granted && error == nil {
-                let event = EKEvent(eventStore: eventStore)
-                event.title = title
-                event.startDate = startDate
-                event.endDate = endDate
-                event.isAllDay = isAllDay
-                event.calendar = eventStore.defaultCalendarForNewEvents // デフォルトカレンダーに登録
-                
-                do {
-                    try eventStore.save(event, span: .thisEvent)
-                    DispatchQueue.main.async {
-                        dismiss()
-                    }
-                } catch {
-                    print("保存失敗: \(error.localizedDescription)")
-                }
-            } else {
-                print("カレンダーへのアクセスが拒否されました")
-            }
+        let event = EKEvent(eventStore: eventStore)
+        event.title = title
+        event.startDate = startDate
+        event.endDate = endDate
+        event.isAllDay = isAllDay
+        event.calendar = eventStore.defaultCalendarForNewEvents
+        event.availability = availability // ← 追加！
+        
+        if !location.isEmpty {
+            let structuredLocation = EKStructuredLocation(title: location)
+            structuredLocation.geoLocation = nil // ここでは座標は設定しない（必要なら後で）
+            event.structuredLocation = structuredLocation // ← 追加！
+            event.location = location // ← これは普通の文字列locationも一応セット
+        }
+        
+        do {
+            try eventStore.save(event, span: .thisEvent)
+            dismiss()
+        } catch {
+            print("保存失敗: \(error.localizedDescription)")
         }
     }
 }
