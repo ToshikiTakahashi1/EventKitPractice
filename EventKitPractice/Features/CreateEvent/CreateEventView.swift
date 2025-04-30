@@ -10,7 +10,7 @@ struct EventCreateView: View {
     @State private var isAllDay: Bool = false
     @State private var availability: EKEventAvailability = .busy
     @State private var location: String = ""
-
+    @State private var url: String = ""
     
     private let eventStore = EKEventStore()
     
@@ -48,7 +48,12 @@ struct EventCreateView: View {
                     }
                     .pickerStyle(SegmentedPickerStyle())
                 }
-
+                
+                Section("URL") {
+                    TextField("関連URL（任意）", text: $url)
+                        .keyboardType(.URL)
+                        .autocapitalization(.none)
+                }
                 
                 Section {
                     Button("イベントを保存") {
@@ -82,6 +87,10 @@ struct EventCreateView: View {
             structuredLocation.geoLocation = nil // ここでは座標は設定しない（必要なら後で）
             event.structuredLocation = structuredLocation // ← 追加！
             event.location = location // ← これは普通の文字列locationも一応セット
+        }
+        
+        if let eventURL = URL(string: url), !url.isEmpty {
+            event.url = eventURL
         }
         
         do {
