@@ -11,6 +11,7 @@ struct EventCreateView: View {
     @State private var availability: EKEventAvailability = .busy
     @State private var location: String = ""
     @State private var url: String = ""
+    @State private var selectedTimeZoneID: String = TimeZone.current.identifier
     
     private let eventStore = EKEventStore()
     
@@ -55,6 +56,14 @@ struct EventCreateView: View {
                         .autocapitalization(.none)
                 }
                 
+                Section("タイムゾーン") {
+                    Picker("タイムゾーン", selection: $selectedTimeZoneID) {
+                        ForEach(TimeZone.knownTimeZoneIdentifiers, id: \.self) { id in
+                            Text(id).tag(id)
+                        }
+                    }
+                }
+                
                 Section {
                     Button("イベントを保存") {
                         saveEvent()
@@ -91,6 +100,10 @@ struct EventCreateView: View {
         
         if let eventURL = URL(string: url), !url.isEmpty {
             event.url = eventURL
+        }
+        
+        if let selectedTimeZone = TimeZone(identifier: selectedTimeZoneID) {
+            event.timeZone = selectedTimeZone
         }
         
         do {
