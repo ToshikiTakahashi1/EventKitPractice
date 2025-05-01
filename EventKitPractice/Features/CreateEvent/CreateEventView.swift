@@ -12,8 +12,19 @@ struct EventCreateView: View {
     @State private var location: String = ""
     @State private var url: String = ""
     @State private var selectedTimeZoneID: String = TimeZone.current.identifier
+    @State private var notes: String = ""
+    @State private var selectedAlarmOffsets: Set<TimeInterval> = []
     
     private let eventStore = EKEventStore()
+    
+    let alarmOptions: [(label: String, offset: TimeInterval)] = [
+        ("5分前", -300),
+        ("10分前", -600),
+        ("30分前", -1800),
+        ("1時間前", -3600),
+        ("1日前", -86400)
+    ]
+
     
     var body: some View {
         NavigationView {
@@ -64,6 +75,26 @@ struct EventCreateView: View {
                     }
                 }
                 
+                Section("メモ") {
+                    TextEditor(text: $notes)
+                        .frame(minHeight: 100)
+                }
+                
+                Section("通知") {
+                    ForEach(alarmOptions, id: \.offset) { option in
+                        Toggle(option.label, isOn: Binding(
+                            get: { selectedAlarmOffsets.contains(option.offset) },
+                            set: { isSelected in
+                                if isSelected {
+                                    selectedAlarmOffsets.insert(option.offset)
+                                } else {
+                                    selectedAlarmOffsets.remove(option.offset)
+                                }
+                            }
+                        ))
+                    }
+                }
+                
                 Section {
                     Button("イベントを保存") {
                         saveEvent()
@@ -104,6 +135,12 @@ struct EventCreateView: View {
         
         if let selectedTimeZone = TimeZone(identifier: selectedTimeZoneID) {
             event.timeZone = selectedTimeZone
+        }
+        
+        event.notes = notes
+        
+        event.alarms = selectedAlarmOffsets.map { offset in
+            EKAlarm(relativeOffset: offset)
         }
         
         do {
