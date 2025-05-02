@@ -14,6 +14,7 @@ struct EventCreateView: View {
     @State private var selectedTimeZoneID: String = TimeZone.current.identifier
     @State private var notes: String = ""
     @State private var selectedAlarmOffsets: Set<TimeInterval> = []
+    @State private var selectedRepeat: RepeatRule = .none
     
     private let eventStore = EKEventStore()
     
@@ -24,7 +25,6 @@ struct EventCreateView: View {
         ("1時間前", -3600),
         ("1日前", -86400)
     ]
-
     
     var body: some View {
         NavigationView {
@@ -95,6 +95,14 @@ struct EventCreateView: View {
                     }
                 }
                 
+                Section("繰り返し") {
+                    Picker("繰り返し", selection: $selectedRepeat) {
+                        ForEach(RepeatRule.allCases) { rule in
+                            Text(rule.label).tag(rule)
+                        }
+                    }
+                }
+                
                 Section {
                     Button("イベントを保存") {
                         saveEvent()
@@ -143,11 +151,41 @@ struct EventCreateView: View {
             EKAlarm(relativeOffset: offset)
         }
         
+        if let freq = selectedRepeat.frequency {
+            let rule = EKRecurrenceRule(recurrenceWith: freq, interval: 1, end: nil)
+            event.recurrenceRules = [rule]
+        }
+        
         do {
             try eventStore.save(event, span: .thisEvent)
             dismiss()
         } catch {
             print("保存失敗: \(error.localizedDescription)")
+        }
+    }
+}
+
+enum RepeatRule: String, CaseIterable, Identifiable {
+    case none, daily, weekly, monthly, yearly
+    var id: String { self.rawValue }
+    
+    var label: String {
+        switch self {
+        case .none: return "繰り返しなし"
+        case .daily: return "毎日"
+        case .weekly: return "毎週"
+        case .monthly: return "毎月"
+        case .yearly: return "毎年"
+        }
+    }
+    
+    var frequency: EKRecurrenceFrequency? {
+        switch self {
+        case .none: return nil
+        case .daily: return .daily
+        case .weekly: return .weekly
+        case .monthly: return .monthly
+        case .yearly: return .yearly
         }
     }
 }
