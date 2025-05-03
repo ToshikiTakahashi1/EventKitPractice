@@ -20,7 +20,7 @@ struct EventCreateView: View {
     private let eventStore = EKEventStore()
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 titleSection
                 dateSection
@@ -32,19 +32,21 @@ struct EventCreateView: View {
                 notesSection
                 alarmSection
                 recurrenceSection
-                
-                Section {
-                    Button("イベントを保存", action: saveEvent)
+            }
+            .navigationTitle("新規")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("キャンセル", action: {dismiss()})
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("追加", action: saveEvent)
+                        .bold()
                         .disabled(title.isEmpty)
                 }
             }
-            .navigationTitle("新規イベント作成")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("キャンセル", action: { dismiss() })
-                }
-            }
         }
+        .interactiveDismissDisabled()
     }
     
     // MARK: - Subviews
