@@ -120,16 +120,43 @@ struct EventDetailView: View {
         .navigationTitle("イベント詳細")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button("削除") {
-                    do {
-                        try EventStoreManager.shared.eventStore.remove(event, span: .thisEvent, commit: true)
-                        dismiss()
-                        print("削除完了！")
-                    } catch {
-                        print("削除エラー: \(error)")
-                    }
-                }
+                Button("削除", action: onDeleteButton)
             }
+        }
+    }
+    
+    // MARK: UI Action
+    private func onDeleteButton() {
+        remove(withCommitParam: true)
+    }
+    
+    // MARK: Any Function
+    
+    /// commitパタメーターがあるタイプのremoveメソッドを使った削除処理
+    private func remove(withCommitParam commit: Bool) {
+        do {
+            try EventStoreManager.shared.eventStore.remove(
+                event,
+                span: .thisEvent,
+                commit: commit
+            )
+            if !commit {
+                try EventStoreManager.shared.eventStore.commit()
+            }
+            dismiss()
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
+    /// commitパラメーターがないタイプのremoveメソッドを使った削除処理
+    private func removeWithoutCommitParam() {
+        do {
+            try EventStoreManager.shared.eventStore.remove(event, span: .thisEvent)
+            try EventStoreManager.shared.eventStore.commit()
+            dismiss()
+        } catch {
+            print(error.localizedDescription)
         }
     }
     
