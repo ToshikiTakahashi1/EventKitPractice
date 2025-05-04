@@ -23,8 +23,7 @@ struct EventCreateView: View {
         NavigationStack {
             Form {
                 titleSection
-                dateSection
-                allDayToggleSection
+                timeSection
                 locationSection
                 availabilitySection
                 urlSection
@@ -57,23 +56,22 @@ struct EventCreateView: View {
         }
     }
     
-    private var dateSection: some View {
-        Group {
-            Section("開始日時") {
-                DatePicker("開始", selection: $startDate)
-                    .datePickerStyle(GraphicalDatePickerStyle())
-            }
-            
-            Section("終了日時") {
-                DatePicker("終了", selection: $endDate)
-                    .datePickerStyle(GraphicalDatePickerStyle())
-            }
-        }
-    }
-    
-    private var allDayToggleSection: some View {
+    private var timeSection: some View {
         Section {
             Toggle("終日イベント", isOn: $isAllDay)
+            Group {
+                DatePicker(
+                    "開始",
+                    selection: $startDate,
+                    displayedComponents: isAllDay ? [.date] : [.date, .hourAndMinute]
+                )
+                DatePicker(
+                    "終了",
+                    selection: $endDate,
+                    displayedComponents: isAllDay ? [.date] : [.date, .hourAndMinute]
+                )
+            }
+            .datePickerStyle(.compact)
         }
     }
     
