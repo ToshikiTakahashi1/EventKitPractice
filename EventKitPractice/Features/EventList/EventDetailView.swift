@@ -2,6 +2,8 @@ import SwiftUI
 import EventKit
 
 struct EventDetailView: View {
+    @Environment(\.dismiss) private var dismiss
+    
     private let event: EKEvent
     
     init(event: EKEvent) {
@@ -116,6 +118,19 @@ struct EventDetailView: View {
             }
         }
         .navigationTitle("イベント詳細")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("削除") {
+                    do {
+                        try EventStoreManager.shared.eventStore.remove(event, span: .thisEvent, commit: true)
+                        dismiss()
+                        print("削除完了！")
+                    } catch {
+                        print("削除エラー: \(error)")
+                    }
+                }
+            }
+        }
     }
     
     private func dateString(_ date: Date?) -> String {
