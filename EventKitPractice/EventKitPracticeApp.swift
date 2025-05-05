@@ -2,17 +2,17 @@ import SwiftUI
 
 @main
 struct EventKitPracticeApp: App {
-    @StateObject private var calenderAuthManager = CalenderAuthManager.shared
+    @StateObject private var eventStoreManager = EventStoreManager.shared
     
     var body: some Scene {
         WindowGroup {
-            if calenderAuthManager.isRequested {
+            if eventStoreManager.isRequested {
                 ContentView()
             } else {
                 ProgressView()
                     .task {
                         do {
-                            try await calenderAuthManager.requestAccess()
+                            try await eventStoreManager.requestAccess()
                         } catch {
                             
                         }

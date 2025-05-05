@@ -7,7 +7,19 @@ final class EventStoreManager: ObservableObject {
     
     let eventStore: EKEventStore = EKEventStore()
     
+    @Published var isRequested: Bool = false
+    @Published var isAuthorized: Bool = false
     @Published var events: [EKEvent] = []
+    
+    /// アクセス許可
+    func requestAccess() async throws {
+        do {
+            isAuthorized = try await eventStore.requestFullAccessToEvents()
+            isRequested = true
+        } catch {
+            throw error
+        }
+    }
     
     /// イベント検索処理
     func findEvents() {
