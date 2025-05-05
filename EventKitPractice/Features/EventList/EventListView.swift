@@ -20,7 +20,7 @@ struct EventListView: View {
             }
             .navigationTitle("カレンダーイベント")
             .onAppear {
-                calendarManager.loadEvents()
+                calendarManager.findEvents()
             }
         }
     }

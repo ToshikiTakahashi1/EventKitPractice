@@ -9,18 +9,22 @@ final class EventStoreManager: ObservableObject {
     
     @Published var events: [EKEvent] = []
     
-    // アクセス許可＋イベント取得
-    func loadEvents() {
-        let calendars = eventStore.calendars(for: .event)
-        let startDate = Date()
+    /// イベント検索処理
+    func findEvents() {
+        let allCalendarsForEvent = eventStore.calendars(for: .event)
+        let startDate = Date.now
         let endDate = Calendar.current.date(byAdding: .month, value: 1, to: startDate)!
         
-        let predicate = self.eventStore.predicateForEvents(withStart: startDate, end: endDate, calendars: calendars)
+        let predicate = eventStore.predicateForEvents(
+            withStart: startDate,
+            end: endDate,
+            calendars: allCalendarsForEvent
+        )
         
-        let fetchedEvents = self.eventStore.events(matching: predicate)
+        let foundEvents = eventStore.events(matching: predicate)
         
         DispatchQueue.main.async {
-            self.events = fetchedEvents
+            self.events = foundEvents
         }
     }
 }
