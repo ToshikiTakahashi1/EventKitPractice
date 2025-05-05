@@ -12,9 +12,9 @@ struct EventKitPracticeApp: App {
                 ProgressView()
                     .task {
                         do {
-                            try await eventStoreManager.requestAccess()
+                            try await eventStoreManager.requestFullAccessToEvents()
                         } catch {
-                            
+                            // TODO: エラハン
                         }
                     }
             }

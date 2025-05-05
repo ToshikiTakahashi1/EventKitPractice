@@ -9,14 +9,39 @@ final class EventStoreManager: ObservableObject {
     
     @Published var isRequested: Bool = false
     @Published var isAuthorized: Bool = false
+    @Published var isWriteOnlyAccessToEventsRequested = false
+    @Published var isWriteOnlyAccessToEventsAuthorized = false
+    @Published var isFullAccessToRemindersRequested = false
+    @Published var isFullAccessToRemindersAuthorized = false
+    
     @Published var events: [EKEvent] = []
     
     /// アクセス許可
     @MainActor
-    func requestAccess() async throws {
+    func requestFullAccessToEvents() async throws {
         do {
             isAuthorized = try await eventStore.requestFullAccessToEvents()
             isRequested = true
+        } catch {
+            throw error
+        }
+    }
+    
+    @MainActor
+    func requestWriteOnlyAccessToEvents() async throws {
+        do {
+            isWriteOnlyAccessToEventsRequested = try await eventStore.requestWriteOnlyAccessToEvents()
+            isWriteOnlyAccessToEventsAuthorized = true
+        } catch {
+            throw error
+        }
+    }
+    
+    @MainActor
+    func requestFullAccessToReminders() async throws {
+        do {
+            isFullAccessToRemindersRequested = try await eventStore.requestFullAccessToReminders()
+            isFullAccessToRemindersAuthorized = true
         } catch {
             throw error
         }
