@@ -22,9 +22,6 @@ final class EventStoreManager: ObservableObject {
         )
         
         let foundEvents = eventStore.events(matching: predicate)
-        
-        DispatchQueue.main.async {
-            self.events = foundEvents
-        }
+        events = foundEvents
     }
 }
