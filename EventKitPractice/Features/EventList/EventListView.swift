@@ -5,23 +5,21 @@ struct EventListView: View {
     @StateObject private var calendarManager = EventStoreManager.shared
     
     var body: some View {
-        NavigationView {
-            List(calendarManager.events, id: \.eventIdentifier) { event in
-                NavigationLink(destination: EventDetailView(event: event)) {
-                    VStack(alignment: .leading) {
-                        Text(event.title ?? "タイトルなし")
-                            .font(.headline)
-                        Text(dateRangeString(for: event))
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                    }
-                    .padding(.vertical, 4)
+        List(calendarManager.events, id: \.eventIdentifier) { event in
+            NavigationLink(destination: EventDetailView(event: event)) {
+                VStack(alignment: .leading) {
+                    Text(event.title ?? "タイトルなし")
+                        .font(.headline)
+                    Text(dateRangeString(for: event))
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
                 }
+                .padding(.vertical, 4)
             }
-            .navigationTitle("カレンダーイベント")
-            .onAppear {
-                calendarManager.findEvents()
-            }
+        }
+        .navigationTitle("カレンダーイベント")
+        .onAppear {
+            calendarManager.findEvents()
         }
     }
     

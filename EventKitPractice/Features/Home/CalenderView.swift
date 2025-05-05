@@ -4,22 +4,23 @@ struct ContentView: View {
     
     @State private var isEventViewPresented: Bool = false
     @State private var isEventEditViewPresented = false
-    @State private var isEventListViewPresented = false
     @State private var isCUstomCreateEventViewPresented: Bool = false
     
     var body: some View {
-        VStack {
-            Button("EKEventViewController") {
-                isEventViewPresented = true
-            }
-            Button("EKEventEditViewController") {
-                isEventEditViewPresented = true
-            }
-            Button("カスタムで新規イベント作成") {
-                isCUstomCreateEventViewPresented = true
-            }
-            Button("1ヶ月以内の予定一覧") {
-                isEventListViewPresented = true
+        NavigationStack {
+            VStack {
+                Button("EKEventViewController") {
+                    isEventViewPresented = true
+                }
+                Button("EKEventEditViewController") {
+                    isEventEditViewPresented = true
+                }
+                Button("カスタムで新規イベント作成") {
+                    isCUstomCreateEventViewPresented = true
+                }
+                NavigationLink("📌予定リスト（1ヶ月以内）") {
+                    EventListView()
+                }
             }
         }
         .sheet(isPresented: $isEventViewPresented) {
@@ -30,9 +31,6 @@ struct ContentView: View {
         }
         .sheet(isPresented: $isEventEditViewPresented) {
             EventEditView()
-        }
-        .sheet(isPresented: $isEventListViewPresented) {
-            EventListView()
         }
         .sheet(isPresented: $isCUstomCreateEventViewPresented) {
             EventCreateView()
