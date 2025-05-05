@@ -12,6 +12,7 @@ final class EventStoreManager: ObservableObject {
     @Published var events: [EKEvent] = []
     
     /// アクセス許可
+    @MainActor
     func requestAccess() async throws {
         do {
             isAuthorized = try await eventStore.requestFullAccessToEvents()
