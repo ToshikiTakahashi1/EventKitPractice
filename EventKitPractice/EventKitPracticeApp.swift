@@ -8,7 +8,7 @@ struct EventKitPracticeApp: App {
     
     var body: some Scene {
         WindowGroup {
-            if eventStoreManager.isRequested {
+            if eventStoreManager.isFullAccessToEventsRequested {
                 ContentView()
             } else {
                 ProgressView()

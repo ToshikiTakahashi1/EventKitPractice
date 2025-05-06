@@ -7,8 +7,8 @@ final class EventStoreManager: ObservableObject {
     
     let eventStore: EKEventStore = EKEventStore()
     
-    @Published var isRequested: Bool = false
-    @Published var isAuthorized: Bool = false
+    @Published var isFullAccessToEventsRequested: Bool = false
+    @Published var isFullAccessToEventsAuthorized: Bool = false
     @Published var isWriteOnlyAccessToEventsRequested = false
     @Published var isWriteOnlyAccessToEventsAuthorized = false
     @Published var isFullAccessToRemindersRequested = false
@@ -32,10 +32,10 @@ final class EventStoreManager: ObservableObject {
         case .denied:
             actionForNoAccess()
         case .fullAccess:
-            isRequested = true
+            isFullAccessToEventsRequested = true
             return
         case .writeOnly:
-            isRequested = true
+            isFullAccessToEventsRequested = true
             return
         default:
             return
@@ -46,8 +46,8 @@ final class EventStoreManager: ObservableObject {
     @MainActor
     private func requestFullAccessToEvents() async throws {
         do {
-            isAuthorized = try await eventStore.requestFullAccessToEvents()
-            isRequested = true
+            isFullAccessToEventsAuthorized = try await eventStore.requestFullAccessToEvents()
+            isFullAccessToEventsRequested = true
         } catch {
             throw error
         }
