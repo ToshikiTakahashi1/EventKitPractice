@@ -16,9 +16,35 @@ final class EventStoreManager: ObservableObject {
     
     @Published var events: [EKEvent] = []
     
+    func requestAccess(for entityType: EKEntityType, actionForNoAccess: () -> Void) throws {
+        let authorizationStatus = EKEventStore.authorizationStatus(for: entityType)
+        switch authorizationStatus {
+        case .notDetermined:
+            Task {
+                do {
+                    try await requestFullAccessToEvents()
+                } catch {
+                    throw error
+                }
+            }
+        case .restricted:
+            actionForNoAccess()
+        case .denied:
+            actionForNoAccess()
+        case .fullAccess:
+            isRequested = true
+            return
+        case .writeOnly:
+            isRequested = true
+            return
+        default:
+            return
+        }
+    }
+    
     /// アクセス許可
     @MainActor
-    func requestFullAccessToEvents() async throws {
+    private func requestFullAccessToEvents() async throws {
         do {
             isAuthorized = try await eventStore.requestFullAccessToEvents()
             isRequested = true
@@ -28,7 +54,7 @@ final class EventStoreManager: ObservableObject {
     }
     
     @MainActor
-    func requestWriteOnlyAccessToEvents() async throws {
+    private func requestWriteOnlyAccessToEvents() async throws {
         do {
             isWriteOnlyAccessToEventsRequested = try await eventStore.requestWriteOnlyAccessToEvents()
             isWriteOnlyAccessToEventsAuthorized = true
@@ -38,7 +64,7 @@ final class EventStoreManager: ObservableObject {
     }
     
     @MainActor
-    func requestFullAccessToReminders() async throws {
+    private func requestFullAccessToReminders() async throws {
         do {
             isFullAccessToRemindersRequested = try await eventStore.requestFullAccessToReminders()
             isFullAccessToRemindersAuthorized = true
