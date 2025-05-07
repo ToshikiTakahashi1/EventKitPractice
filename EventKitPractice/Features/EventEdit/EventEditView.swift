@@ -2,9 +2,15 @@ import EventKitUI
 import SwiftUI
 
 struct EventEditView: UIViewControllerRepresentable {
+    private let eventToEdit: EKEvent?
+    
+    init(eventToEdit: EKEvent?) {
+        self.eventToEdit = eventToEdit
+    }
     
     func makeUIViewController(context: Context) -> EKEventEditViewController {
         let editViewController = EKEventEditViewController()
+        editViewController.event = eventToEdit
         editViewController.eventStore = EventStoreManager.shared.eventStore
         editViewController.delegate = context.coordinator
         return editViewController

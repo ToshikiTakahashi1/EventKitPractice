@@ -10,7 +10,8 @@ struct EventDetailView: View {
         self.event = event
     }
     
-    @State private var isEditViewPresented = false
+    @State private var isEventKitEditViewPresented = false
+    @State private var isOriginalEditViewPresented = false
     
     var body: some View {
         List {
@@ -130,8 +131,11 @@ struct EventDetailView: View {
                 })
             }
         }
-        .sheet(isPresented: $isEditViewPresented) {
+        .sheet(isPresented: $isOriginalEditViewPresented) {
             EventCreateView(eventToEdit: event)
+        }
+        .sheet(isPresented: $isEventKitEditViewPresented) {
+            EventEditView(eventToEdit: event)
         }
     }
     
@@ -141,7 +145,7 @@ struct EventDetailView: View {
     }
     
     private func onEditButton() {
-        isEditViewPresented = true
+        isEventKitEditViewPresented = true
     }
     
     // MARK: Any Function
