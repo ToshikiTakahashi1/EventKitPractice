@@ -4,6 +4,11 @@ import EventKit
 struct EventCreateView: View {
     @Environment(\.dismiss) var dismiss
     
+    @StateObject private var eventStoreManager = EventStoreManager.shared
+    
+    private let mode: Mode
+    private let eventToEdit: EKEvent?
+    
     // MARK: - States
     @State private var title: String = ""
     @State private var startDate: Date = Date()
@@ -17,7 +22,31 @@ struct EventCreateView: View {
     @State private var selectedAlarmOffsets: Set<TimeInterval> = []
     @State private var selectedRepeat: RepeatRule = .none
     
-    private let eventStore = EKEventStore()
+    init() {
+        mode = .new
+        eventToEdit = nil
+    }
+    
+    init(eventToEdit event: EKEvent) {
+        mode = .edit
+        eventToEdit = event
+        _title = State(initialValue: event.title ?? "")
+        _startDate = State(initialValue: event.startDate)
+        _endDate = State(initialValue: event.endDate)
+        _isAllDay = State(initialValue: event.isAllDay)
+        _availability = State(initialValue: event.availability)
+        _location = State(initialValue: event.location ?? "")
+        _url = State(initialValue: event.url?.absoluteString ?? "")
+        _selectedTimeZoneID = State(initialValue: event.timeZone?.identifier ?? TimeZone.current.identifier)
+        _notes = State(initialValue: event.notes ?? "")
+        _selectedAlarmOffsets = State(initialValue: Set((event.alarms ?? []).compactMap { $0.relativeOffset }))
+        
+        if let rule = event.recurrenceRules?.first {
+            _selectedRepeat = State(initialValue: RepeatRule.from(frequency: rule.frequency))
+        } else {
+            _selectedRepeat = State(initialValue: .none)
+        }
+    }
     
     var body: some View {
         NavigationStack {
@@ -32,14 +61,14 @@ struct EventCreateView: View {
                 alarmSection
                 recurrenceSection
             }
-            .navigationTitle("新規")
+            .navigationTitle(mode.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("キャンセル", action: {dismiss()})
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("追加", action: saveEvent)
+                    Button("保存", action: saveEvent)
                         .bold()
                         .disabled(title.isEmpty)
                 }
@@ -148,12 +177,18 @@ struct EventCreateView: View {
     // MARK: - Save Logic
     
     private func saveEvent() {
-        let event = EKEvent(eventStore: eventStore)
+        let event: EKEvent
+        switch mode {
+        case .new:
+            event = .init(eventStore: eventStoreManager.eventStore)
+        case .edit:
+            event = self.eventToEdit!
+        }
         event.title = title
         event.startDate = startDate
         event.endDate = endDate
         event.isAllDay = isAllDay
-        event.calendar = eventStore.defaultCalendarForNewEvents
+        event.calendar = eventStoreManager.eventStore.defaultCalendarForNewEvents
         event.availability = availability
         
         if !location.isEmpty {
@@ -183,10 +218,26 @@ struct EventCreateView: View {
         }
         
         do {
-            try eventStore.save(event, span: .thisEvent)
+            try eventStoreManager.eventStore.save(event, span: .thisEvent)
             dismiss()
         } catch {
             print("保存失敗: \(error.localizedDescription)")
+        }
+    }
+}
+
+extension EventCreateView {
+    enum Mode {
+        case new
+        case edit
+        
+        var title: String {
+            switch self {
+            case .new:
+                return "新規"
+            case .edit:
+                return "編集"
+            }
         }
     }
 }
@@ -240,6 +291,18 @@ enum AlarmOption: CaseIterable, Hashable {
         case .min30: return -1800
         case .hour1: return -3600
         case .day1: return -86400
+        }
+    }
+}
+
+extension RepeatRule {
+    static func from(frequency: EKRecurrenceFrequency) -> RepeatRule {
+        switch frequency {
+        case .daily: return .daily
+        case .weekly: return .weekly
+        case .monthly: return .monthly
+        case .yearly: return .yearly
+        @unknown default: return .none
         }
     }
 }

@@ -10,6 +10,8 @@ struct EventDetailView: View {
         self.event = event
     }
     
+    @State private var isEditViewPresented = false
+    
     var body: some View {
         List {
             Section("タイトル") {
@@ -120,14 +122,26 @@ struct EventDetailView: View {
         .navigationTitle("イベント詳細")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button("削除", action: onDeleteButton)
+                Menu(content: {
+                    Button("編集", action: onEditButton)
+                    Button("削除", role: .destructive, action: onDeleteButton)
+                }, label: {
+                    Image(systemName: "ellipsis")
+                })
             }
+        }
+        .sheet(isPresented: $isEditViewPresented) {
+            EventCreateView(eventToEdit: event)
         }
     }
     
     // MARK: UI Action
     private func onDeleteButton() {
         remove(withCommitParam: true)
+    }
+    
+    private func onEditButton() {
+        isEditViewPresented = true
     }
     
     // MARK: Any Function
