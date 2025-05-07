@@ -124,7 +124,8 @@ struct EventDetailView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu(content: {
-                    Button("編集", action: onEditButton)
+                    Button("EventKit純正の編集画面で編集", action: onEventKitEditButton)
+                    Button("オリジナルの編集画面で編集", action: onOriginalEditButton)
                     Button("削除", role: .destructive, action: onDeleteButton)
                 }, label: {
                     Image(systemName: "ellipsis")
@@ -144,8 +145,12 @@ struct EventDetailView: View {
         remove(withCommitParam: true)
     }
     
-    private func onEditButton() {
+    private func onEventKitEditButton() {
         isEventKitEditViewPresented = true
+    }
+    
+    private func onOriginalEditButton() {
+        isOriginalEditViewPresented = true
     }
     
     // MARK: Any Function
