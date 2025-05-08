@@ -3,11 +3,11 @@ import SwiftUI
 
 struct EventEditView: UIViewControllerRepresentable {
     private let eventToEdit: EKEvent?
-    @Binding private var isPresentet: Bool
+    @Binding private var isPresented: Bool
     
     init(eventToEdit: EKEvent?, isPresented: Binding<Bool>) {
         self.eventToEdit = eventToEdit
-        self._isPresentet = isPresented
+        self._isPresented = isPresented
     }
     
     func makeUIViewController(context: Context) -> EKEventEditViewController {
@@ -41,7 +41,7 @@ struct EventEditView: UIViewControllerRepresentable {
             @unknown default:
                 print("未定義のアクション")
             }
-            parent.isPresentet = false
+            parent.isPresented = false
         }
     }
     
