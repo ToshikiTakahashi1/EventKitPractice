@@ -136,7 +136,7 @@ struct EventDetailView: View {
             EventCreateView(eventToEdit: event)
         }
         .sheet(isPresented: $isEventKitEditViewPresented) {
-            EventEditView(eventToEdit: event)
+            EventEditView(eventToEdit: event, isPresented: $isEventKitEditViewPresented)
         }
     }
     

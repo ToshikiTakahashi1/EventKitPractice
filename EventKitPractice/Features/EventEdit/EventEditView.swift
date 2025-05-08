@@ -3,9 +3,11 @@ import SwiftUI
 
 struct EventEditView: UIViewControllerRepresentable {
     private let eventToEdit: EKEvent?
+    @Binding private var isPresentet: Bool
     
-    init(eventToEdit: EKEvent?) {
+    init(eventToEdit: EKEvent?, isPresented: Binding<Bool>) {
         self.eventToEdit = eventToEdit
+        self._isPresentet = isPresented
     }
     
     func makeUIViewController(context: Context) -> EKEventEditViewController {
@@ -24,8 +26,22 @@ struct EventEditView: UIViewControllerRepresentable {
             self.parent = parent
         }
         
+        func eventEditViewControllerDefaultCalendar(forNewEvents controller: EKEventEditViewController) -> EKCalendar {
+            return EventStoreManager.shared.eventStore.defaultCalendarForNewEvents!
+        }
+        
         func eventEditViewController(_ controller: EKEventEditViewController, didCompleteWith action: EKEventEditViewAction) {
-            controller.dismiss(animated: true)
+            switch action {
+            case .canceled:
+                print("キャンセルされました")
+            case .saved:
+                print("イベントが保存されました")
+            case .deleted:
+                print("イベントが削除されました")
+            @unknown default:
+                print("未定義のアクション")
+            }
+            parent.isPresentet = false
         }
     }
     

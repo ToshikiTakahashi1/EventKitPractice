@@ -30,7 +30,7 @@ struct ContentView: View {
             }
         }
         .sheet(isPresented: $isEventEditViewPresented) {
-            EventEditView(eventToEdit: nil)
+            EventEditView(eventToEdit: nil, isPresented: $isEventEditViewPresented)
         }
         .sheet(isPresented: $isCUstomCreateEventViewPresented) {
             EventCreateView()
